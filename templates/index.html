@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatPal</title>
+    <style>
+        /* General Body Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #d4f1d1, #a8e6cf);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Chat Container Styling */
+        .chat-container {
+            max-width: 600px;
+            width: 100%;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-top: 4px solid #4CAF50;
+        }
+
+        /* Chat Title Styling */
+        h2 {
+            margin-bottom: 20px;
+            color: #4CAF50;
+            font-size: 32px;
+            font-weight: bold;
+            font-family: 'Georgia', serif;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: 2px;
+        }
+
+        /* Chat Box Styling */
+        .chat-box {
+            width: 100%;
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f0fff0;
+            border: 1px solid #ddd;
+        }
+
+        /* Message Input Container Styling */
+        .input-container {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        /* Input Styling */
+        input[type="text"] {
+            width: 85%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: #4CAF50;
+        }
+
+        /* Button Styling */
+        button {
+            width: 12%;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Message Styling */
+        .message-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* User Message Styling */
+        .user-msg {
+            background-color: #e0ffe0;
+            align-self: flex-end;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+            text-align: right;
+            font-size: 15px;
+            color: #333;
+        }
+
+        /* Bot Message Styling */
+        .bot-msg {
+            background-color: #e9e9ff;
+            align-self: flex-start;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+            font-size: 15px;
+            color: #333;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        /* Responsive Design for Mobile */
+        @media (max-width: 768px) {
+            body {
+                background: #d4f1d1; /* Green color for background */
+            }
+
+            .chat-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+                box-shadow: none;
+            }
+
+            .chat-box {
+                height: calc(100vh - 180px); /* Full height minus input and title */
+            }
+
+            h2 {
+                font-size: 28px;
+                text-align: center;
+                width: 100%;
+            }
+
+            .input-container {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                padding: 10px;
+                background: #ffffff;
+                border-top: 1px solid #ddd;
+            }
+
+            input[type="text"] {
+                width: 80%;
+                padding: 10px;
+            }
+
+            button {
+                width: 18%;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <h2>ChatPal</h2>
+    <div class="chat-box" id="chat-box">
+        <!-- Chat messages will appear here -->
+    </div>
+    <div class="input-container">
+        <input type="text" id="user-input" placeholder="Tell me your mind...">
+        <button id="send-btn">Send</button>
+    </div>
+</div>
+
+<script>
+    // Function to send user input to Flask backend
+    async function sendMessage() {
+        const userInput = document.getElementById('user-input').value;
+        if (userInput.trim() === '') return;
+
+        // Display the user's message
+        appendMessage(userInput, 'user-msg');
+        document.getElementById('user-input').value = '';  // Clear input box
+
+        // Make POST request to the Flask backend
+        const response = await fetch('/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ input: userInput })
+        });
+
+        const data = await response.json();
+
+        // Display the bot's response
+        if (data.response) {
+            appendMessage(data.response, 'bot-msg');
+        } else {
+            appendMessage("Sorry, I couldn't process that. Please try again.", 'bot-msg');
+        }
+    }
+
+    // Function to append messages to the chatbox
+    function appendMessage(message, className) {
+        const messageContainer = document.createElement('div');
+        messageContainer.classList.add('message-container');
+
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', className);
+        messageDiv.innerHTML = message;  // Use innerHTML to render structured HTML
+
+        messageContainer.appendChild(messageDiv);
+        document.getElementById('chat-box').appendChild(messageContainer);
+        document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+    }
+
+    // Event listener for send button
+    document.getElementById('send-btn').addEventListener('click', sendMessage);
+
+    // Allow the user to send a message by pressing 'Enter'
+    document.getElementById('user-input').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    });
+</script>
+
+</body>
+</html>
