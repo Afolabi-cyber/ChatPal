@@ -8,7 +8,7 @@ import re
 load_dotenv()
 
 # Configure the API with your key
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY")
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 # Create the Flask app
 app = Flask(__name__)
