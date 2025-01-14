@@ -19,5 +19,5 @@ Welcome to **ChatPal**—an empathetic, AI-powered virtual assistant designed to
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/chatpal.git
+   git clone https://github.com/Afolabi-Cyber/chatpal.git
    cd chatpal
